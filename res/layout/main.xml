@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:background="@drawable/background" android:weightSum="1">
     <ImageButton
-            android:layout_width="100dp"
-            android:layout_height="130dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:id="@+id/btnSwitch"
             android:src="@drawable/button_on"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="300px" android:adjustViewBounds="false"
-            android:layout_weight="1" />
-</LinearLayout>
+            android:adjustViewBounds="false"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="60dp" />
+</RelativeLayout>
 

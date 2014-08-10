@@ -79,12 +79,10 @@ public class MainActivity extends Activity {
   }
 
   // Turning on/off flash.
-  private void controlFlash(boolean status) {
+  private void controlFlash(boolean flashOff) {
     String mode = Parameters.FLASH_MODE_TORCH;
-    isFlashOn = true;
-    if (status) {
+    if (flashOff) {
       mode = Parameters.FLASH_MODE_OFF;
-      isFlashOn = false;
     }
 
     if (camera == null || params == null) {
@@ -94,6 +92,8 @@ public class MainActivity extends Activity {
     params.setFlashMode(mode);
     camera.setParameters(params);
     camera.stopPreview();
+
+    isFlashOn = !flashOff;
 
     // Changing button/switch image.
     toggleButtonImage();
@@ -105,10 +105,10 @@ public class MainActivity extends Activity {
    * */
   private void toggleButtonImage() {
     if (isFlashOn) {
-      btnSwitch.setImageResource(R.drawable.button_on);
+      btnSwitch.setImageResource(R.drawable.button_off);
     }
     else {
-      btnSwitch.setImageResource(R.drawable.button_off);
+      btnSwitch.setImageResource(R.drawable.button_on);
     }
   }
 
@@ -120,9 +120,6 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-
-    // On pause turn off the flash.
-    controlFlash(isFlashOn);
   }
 
   @Override
@@ -133,18 +130,13 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-
-    // On resume turn on the flash.
-    if (hasFlash) {
-      controlFlash(isFlashOn);
-    }
   }
 
   @Override
   protected void onStart() {
     super.onStart();
 
-    // on starting the app get the camera params
+    // On starting the app get the camera params.
     getCamera();
   }
 
