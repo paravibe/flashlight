@@ -4,15 +4,59 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:background="@drawable/background" android:weightSum="1">
-    <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/btnSwitch"
-            android:src="@drawable/button_on"
-            android:layout_gravity="center_horizontal"
-            android:adjustViewBounds="false"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_margin="60dp" />
+  <RelativeLayout
+      android:layout_width="150dp"
+      android:layout_height="80dp" android:layout_alignParentTop="false"
+      android:layout_centerHorizontal="true"
+      android:layout_alignParentBottom="false"
+      android:layout_alignParentRight="false"
+      android:layout_alignWithParentIfMissing="false"
+      android:layout_marginTop="140dp">
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView3" android:src="@drawable/flashlight_top" />
+  </RelativeLayout>
+  <RelativeLayout
+      android:layout_width="120dp"
+      android:layout_height="fill_parent" android:layout_alignParentTop="true"
+      android:layout_centerHorizontal="true" android:layout_marginBottom="20dp"
+      android:layout_marginTop="210dp" android:id="@+id/relativeLayout">
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:id="@+id/imageView" android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/flashlight_bottom"
+        android:layout_gravity="bottom" android:paddingLeft="8dp"
+        android:paddingRight="8dp" />
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView2"
+        android:src="@drawable/flashlight_middle"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp" />
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_alignTop="@+id/imageView2"
+        android:layout_centerHorizontal="true" android:layout_marginTop="30dp"
+        android:paddingLeft="5dp" android:paddingRight="5dp">
+      <ImageButton
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:id="@+id/btnSwitch"
+              android:src="@drawable/button_on"
+              android:layout_gravity="center_horizontal"
+              android:background="@android:color/transparent"
+              android:adjustViewBounds="false"
+              android:layout_centerVertical="true"
+              android:layout_centerHorizontal="true"
+              android:layout_column="22"
+              android:focusable="false" android:focusableInTouchMode="false" />
+    </RelativeLayout>
+  </RelativeLayout>
 </RelativeLayout>
 

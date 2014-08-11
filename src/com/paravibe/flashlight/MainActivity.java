@@ -10,14 +10,15 @@ import android.hardware.Camera.Parameters;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.os.Handler;
 
 public class MainActivity extends Activity {
-
-  ImageButton btnSwitch;
-
   private Camera camera;
   private boolean isFlashOn;
   private boolean hasFlash;
+  private Handler mHandler = new Handler();
+  private boolean mSwap = true;
+  ImageButton btnSwitch;
   Parameters params;
 
   @Override
@@ -25,10 +26,10 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    // Flash switch button
+    // Flash switch button.
     btnSwitch = (ImageButton) findViewById(R.id.btnSwitch);
 
-    // First check if device is supporting flashlight or not
+    // First check if device is supporting flashlight or not.
     hasFlash = getApplicationContext().getPackageManager()
         .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
 
@@ -57,8 +58,6 @@ public class MainActivity extends Activity {
 
     // Switch button click event to toggle flash on/off.
     btnSwitch.setOnClickListener(new View.OnClickListener() {
-
-      @Override
       public void onClick(View v) {
         controlFlash(isFlashOn);
       }
@@ -99,17 +98,43 @@ public class MainActivity extends Activity {
     toggleButtonImage();
   }
 
-  /*
-   * Toggle switch button images
-   * changing image states to on / off
-   * */
+  /**
+   * Toggle switch button images.
+   * Changing image states to on/off.
+   */
   private void toggleButtonImage() {
     if (isFlashOn) {
-      btnSwitch.setImageResource(R.drawable.button_off);
-    }
-    else {
       btnSwitch.setImageResource(R.drawable.button_on);
     }
+    else {
+      btnSwitch.setImageResource(R.drawable.button_off);
+    }
+  }
+
+  private final Runnable mRunnable = new Runnable() {
+    public void run() {
+      if (isFlashOn) {
+        Parameters paramsOn = camera.getParameters();
+        Parameters paramsOff = camera.getParameters();
+        paramsOn.setFlashMode(Parameters.FLASH_MODE_TORCH);
+        paramsOff.setFlashMode(Parameters.FLASH_MODE_OFF);
+
+        if (mSwap) {
+          camera.setParameters(paramsOn);
+          mSwap = false;
+          mHandler.postDelayed(mRunnable, 15);
+        }
+        else {
+          camera.setParameters(paramsOff);
+          mSwap = true;
+          mHandler.postDelayed(mRunnable, 15);
+        }
+      }
+    }
+  };
+
+  private void startStrobe() {
+    mHandler.post(mRunnable);
   }
 
   @Override
@@ -120,6 +145,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
+    controlFlash(true);
   }
 
   @Override
@@ -136,15 +162,16 @@ public class MainActivity extends Activity {
   protected void onStart() {
     super.onStart();
 
-    // On starting the app get the camera params.
+    // Get the camera params.
     getCamera();
+    controlFlash(false);
   }
 
   @Override
   protected void onStop() {
     super.onStop();
 
-    // on stop release the camera
+    // Release the camera.
     if (camera != null) {
       camera.release();
       camera = null;
