@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.os.Handler;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity {
   private Camera camera;
@@ -18,7 +20,9 @@ public class MainActivity extends Activity {
   private boolean hasFlash;
   private Handler mHandler = new Handler();
   private boolean mSwap = true;
+  private int strobeIntensity = 10;
   ImageButton btnSwitch;
+  SeekBar strobeIntensitySeek;
   Parameters params;
 
   @Override
@@ -26,8 +30,8 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    // Flash switch button.
     btnSwitch = (ImageButton) findViewById(R.id.btnSwitch);
+    strobeIntensitySeek = (SeekBar) findViewById(R.id.seekBar);
 
     // First check if device is supporting flashlight or not.
     hasFlash = getApplicationContext().getPackageManager()
@@ -39,7 +43,7 @@ public class MainActivity extends Activity {
       AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
       builder.setTitle("Error")
       .setMessage("Sorry, your device doesn't support flash light!")
-      .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+      .setNegativeButton("Close", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           // Closing the application.
           finish();
@@ -50,16 +54,30 @@ public class MainActivity extends Activity {
       return;
     }
 
-    // Get the camera.
-    getCamera();
-
-    // Displaying button image.
-    toggleButtonImage();
-
     // Switch button click event to toggle flash on/off.
     btnSwitch.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         controlFlash(isFlashOn);
+        startStrobe();
+      }
+    });
+
+    strobeIntensitySeek.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+      int progressValue = 0;
+
+      @Override
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        progressValue = progress;
+      }
+
+      @Override
+      public void onStartTrackingTouch(SeekBar seekBar) {
+
+      }
+
+      @Override
+      public void onStopTrackingTouch(SeekBar seekBar) {
+        strobeIntensity = (progressValue + 1) * 10;
       }
     });
   }
@@ -114,25 +132,24 @@ public class MainActivity extends Activity {
   private final Runnable mRunnable = new Runnable() {
     public void run() {
       if (isFlashOn) {
-        Parameters paramsOn = camera.getParameters();
-        Parameters paramsOff = camera.getParameters();
-        paramsOn.setFlashMode(Parameters.FLASH_MODE_TORCH);
-        paramsOff.setFlashMode(Parameters.FLASH_MODE_OFF);
-
         if (mSwap) {
-          camera.setParameters(paramsOn);
-          mSwap = false;
-          mHandler.postDelayed(mRunnable, 15);
+          params.setFlashMode(Parameters.FLASH_MODE_TORCH);
+          camera.setParameters(params);
         }
         else {
-          camera.setParameters(paramsOff);
-          mSwap = true;
-          mHandler.postDelayed(mRunnable, 15);
+          params.setFlashMode(Parameters.FLASH_MODE_OFF);
+          camera.setParameters(params);
         }
+
+        mSwap = !mSwap;
+        mHandler.postDelayed(mRunnable, strobeIntensity);
       }
     }
   };
 
+  /**
+   * Start flashlight strobe.
+   */
   private void startStrobe() {
     mHandler.post(mRunnable);
   }
