@@ -21,7 +21,7 @@
         android:layout_alignParentRight="false"
         android:layout_alignParentLeft="false"
         android:layout_alignParentTop="false" android:clickable="false"
-        />
+        android:max="5" android:longClickable="false" />
   </RelativeLayout>
   <RelativeLayout
       android:layout_width="120dp"

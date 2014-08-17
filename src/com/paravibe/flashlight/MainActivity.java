@@ -16,10 +16,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity {
   private Camera camera;
-  private boolean isFlashOn;
+  private boolean isFlashOn = false;
+  private boolean isLedOn = false;
   private boolean hasFlash;
   private Handler mHandler = new Handler();
-  private boolean mSwap = true;
   private int strobeIntensity = 10;
   ImageButton btnSwitch;
   SeekBar strobeIntensitySeek;
@@ -57,8 +57,11 @@ public class MainActivity extends Activity {
     // Switch button click event to toggle flash on/off.
     btnSwitch.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
-        controlFlash(isFlashOn);
-        startStrobe();
+        int strobeValue = strobeIntensitySeek.getProgress();
+        turnFlashOff(isFlashOn);
+        if (strobeValue != 0) {
+          startStrobe();
+        }
       }
     });
 
@@ -68,6 +71,13 @@ public class MainActivity extends Activity {
       @Override
       public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         progressValue = progress;
+        stopStrobe();
+        if (progressValue == 0) {
+          turnFlashOff(!isFlashOn);
+        }
+        else {
+          startStrobe();
+        }
       }
 
       @Override
@@ -77,7 +87,7 @@ public class MainActivity extends Activity {
 
       @Override
       public void onStopTrackingTouch(SeekBar seekBar) {
-        strobeIntensity = (progressValue + 1) * 10;
+        strobeIntensity = (progressValue + 1) * 30;
       }
     });
   }
@@ -96,9 +106,9 @@ public class MainActivity extends Activity {
   }
 
   // Turning on/off flash.
-  private void controlFlash(boolean flashOff) {
+  private void turnFlashOff(boolean flag) {
     String mode = Parameters.FLASH_MODE_TORCH;
-    if (flashOff) {
+    if (flag) {
       mode = Parameters.FLASH_MODE_OFF;
     }
 
@@ -110,7 +120,7 @@ public class MainActivity extends Activity {
     camera.setParameters(params);
     camera.stopPreview();
 
-    isFlashOn = !flashOff;
+    isFlashOn = !flag;
 
     // Changing button/switch image.
     toggleButtonImage();
@@ -132,7 +142,7 @@ public class MainActivity extends Activity {
   private final Runnable mRunnable = new Runnable() {
     public void run() {
       if (isFlashOn) {
-        if (mSwap) {
+        if (isLedOn) {
           params.setFlashMode(Parameters.FLASH_MODE_TORCH);
           camera.setParameters(params);
         }
@@ -141,8 +151,11 @@ public class MainActivity extends Activity {
           camera.setParameters(params);
         }
 
-        mSwap = !mSwap;
+        isLedOn = !isLedOn;
         mHandler.postDelayed(mRunnable, strobeIntensity);
+      }
+      else {
+        stopStrobe();
       }
     }
   };
@@ -154,6 +167,10 @@ public class MainActivity extends Activity {
     mHandler.post(mRunnable);
   }
 
+  private void stopStrobe() {
+    mHandler.removeCallbacks(mRunnable);
+  }
+
   @Override
   protected void onDestroy() {
     super.onDestroy();
@@ -162,7 +179,9 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-    controlFlash(true);
+
+    stopStrobe();
+    turnFlashOff(true);
   }
 
   @Override
@@ -181,12 +200,14 @@ public class MainActivity extends Activity {
 
     // Get the camera params.
     getCamera();
-    controlFlash(false);
+    turnFlashOff(false);
   }
 
   @Override
   protected void onStop() {
     super.onStop();
+
+    stopStrobe();
 
     // Release the camera.
     if (camera != null) {
