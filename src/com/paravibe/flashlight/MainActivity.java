@@ -1,6 +1,7 @@
 package com.paravibe.flashlight;
 
 import android.app.Activity;
+import android.content.*;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -8,19 +9,46 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity {
+  private final int BATTERY_LOW_LEVEL = 98;
+  private final int LED_ON_INTERVAL = 60 * 1000 * 15;
   private Camera camera;
   private Camera.Parameters params;
+  private Intent batteryStatus;
+  private Timer mTimer;
   private boolean isLedOn;
   private boolean hasLed;
   private static ImageView imageView;
   private static ImageView toggleButton;
   private static Drawable flashOnImage;
   private static Drawable flashOffImage;
+  private int batLevel;
+
+  private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context c, Intent i) {
+      batLevel = i.getIntExtra("level", 0);
+      boolean isCharging = isCharging();
+      if (batLevel <= BATTERY_LOW_LEVEL && !isCharging) {
+        // Turn off led, show alert message and close the application.
+        setFlashStatus(false);
+        new AlertDialog.Builder(MainActivity.this)
+            .setMessage("Sorry, battery level is too low.")
+            .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                finish();
+              }
+            })
+            .show();
+      }
+    }
+  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +73,11 @@ public class MainActivity extends Activity {
       return;
     }
 
+    batteryStatus = registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     setContentView(R.layout.main);
+
+    // Keep screen always on.
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     imageView = (ImageView) findViewById(R.id.background);
     toggleButton = (ImageView) findViewById(R.id.powerButton);
@@ -92,10 +124,19 @@ public class MainActivity extends Activity {
     return true;
   }
 
+  private boolean isCharging() {
+    int batStatus = batteryStatus.getIntExtra("status", -1);
+    boolean isCharging = batStatus == 2 || batStatus == 5;
+    return isCharging;
+  }
+
   @Override
   protected void onStart() {
     super.onStart();
-    if (hasLed) {
+    batLevel = batteryStatus.getIntExtra("level", 0);
+
+    // Check if device has led and if battery level is not very low.
+    if (hasLed && (batLevel > BATTERY_LOW_LEVEL || isCharging())) {
       camera = null;
       getCamera();
       setFlashStatus(isLedOn);
@@ -112,6 +153,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onStop() {
     super.onStop();
+    unregisterReceiver(mBatInfoReceiver);
     if (camera != null) {
       camera.release();
       camera = null;
@@ -132,18 +174,49 @@ public class MainActivity extends Activity {
   }
 
   public void setFlashStatus(Boolean status) {
-    String mode = Camera.Parameters.FLASH_MODE_TORCH;
-    isLedOn = true;
-
-    if (!status) {
-      mode = Camera.Parameters.FLASH_MODE_OFF;
-      isLedOn = false;
-    }
-    toggleButton(isLedOn);
+    String mode;
 
     if (camera == null || params == null) {
       return;
     }
+
+    if (status) {
+      mode = Camera.Parameters.FLASH_MODE_TORCH;
+      isLedOn = true;
+
+      // Set new timer.
+      if (mTimer != null) {
+        mTimer.cancel();
+        mTimer = null;
+      }
+      mTimer = new Timer();
+
+      // Turn off led if it uses long time.
+      mTimer.schedule(new TimerTask() {
+        public void run() {
+          isLedOn = false;
+          controlCamera(Camera.Parameters.FLASH_MODE_OFF);
+          runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              toggleButton(isLedOn);
+            }
+          });
+        }
+      }, LED_ON_INTERVAL);
+    }
+    else {
+      mode = Camera.Parameters.FLASH_MODE_OFF;
+      isLedOn = false;
+      mTimer.cancel();
+      mTimer = null;
+    }
+
+    toggleButton(isLedOn);
+    controlCamera(mode);
+  }
+
+  private void controlCamera(String mode) {
     params = camera.getParameters();
     params.setFlashMode(mode);
     camera.setParameters(params);
