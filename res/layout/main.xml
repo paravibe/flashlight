@@ -1,75 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@drawable/background" android:weightSum="1">
-  <RelativeLayout
-      android:layout_width="180dp"
-      android:layout_height="80dp" android:layout_alignParentTop="false"
+<RelativeLayout
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+  <ImageView
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:src="@drawable/flashlight_on"
+      android:id="@+id/background"
+      android:scaleType="matrix"/>
+  <ImageView
+      android:id="@+id/powerButton"
+      android:layout_width="140.0px"
+      android:layout_height="140.0px"
+      android:layout_x="170.0px"
+      android:layout_y="396.0px"
+      android:layout_alignParentBottom="true"
       android:layout_centerHorizontal="true"
-      android:layout_alignParentBottom="false"
-      android:layout_alignParentRight="false"
-      android:layout_alignWithParentIfMissing="false"
-      android:layout_marginTop="140dp" android:id="@+id/relativeLayout2">
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="false"
-        android:progressDrawable="@drawable/flashlight_top"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentTop="false" android:clickable="false"
-        android:max="5" android:longClickable="false" />
-  </RelativeLayout>
-  <RelativeLayout
-      android:layout_width="120dp"
-      android:layout_height="fill_parent" android:layout_alignParentTop="true"
-      android:layout_centerHorizontal="true" android:layout_marginBottom="20dp"
-      android:layout_marginTop="210dp" android:id="@+id/relativeLayout">
-    <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="10dp"
-        android:id="@+id/imageView" android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/flashlight_bottom"
-        android:layout_gravity="bottom" android:paddingLeft="8dp"
-        android:paddingRight="8dp" />
-    <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/imageView2"
-        android:src="@drawable/flashlight_middle"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp" />
-    <TextClock
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textClock"
-        android:layout_alignBottom="@+id/imageView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp" android:textSize="20dp" />
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:layout_alignTop="@+id/imageView2"
-        android:layout_centerHorizontal="true" android:layout_marginTop="30dp"
-        android:paddingLeft="5dp" android:paddingRight="5dp">
-      <ImageButton
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:id="@+id/btnSwitch"
-              android:src="@drawable/button_off"
-              android:layout_gravity="center_horizontal"
-              android:background="@android:color/transparent"
-              android:adjustViewBounds="false"
-              android:layout_centerVertical="true"
-              android:layout_centerHorizontal="true"
-              android:layout_column="22"
-              android:focusable="false" android:focusableInTouchMode="false" />
-    </RelativeLayout>
-  </RelativeLayout>
+      android:layout_marginBottom="187dp" />
 </RelativeLayout>
-
