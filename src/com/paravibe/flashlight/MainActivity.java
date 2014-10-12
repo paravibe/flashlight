@@ -16,7 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends Activity {
-  private final int BATTERY_LOW_LEVEL = 98;
+  private final int BATTERY_LOW_LEVEL = 10;
   private final int LED_ON_INTERVAL = 60 * 1000 * 15;
   private Camera camera;
   private Camera.Parameters params;
@@ -125,8 +125,9 @@ public class MainActivity extends Activity {
   }
 
   private boolean isCharging() {
-    int batStatus = batteryStatus.getIntExtra("status", -1);
+    int batStatus = batteryStatus.getIntExtra("status", 0);
     boolean isCharging = batStatus == 2 || batStatus == 5;
+
     return isCharging;
   }
 
