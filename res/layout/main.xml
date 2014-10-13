@@ -13,7 +13,7 @@
   <ImageView
       android:id="@+id/powerButton"
       android:layout_width="140.0px"
-      android:layout_height="140.0px"
+      android:layout_height="170.0px"
       android:layout_x="170.0px"
       android:layout_y="396.0px"
       android:layout_alignParentBottom="true"
