@@ -152,9 +152,20 @@ public class MainActivity extends Activity {
   }
 
   @Override
+  protected void onPause() {
+    super.onPause();
+    unregisterReceiver(mBatInfoReceiver);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    batteryStatus = registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+  }
+
+  @Override
   protected void onStop() {
     super.onStop();
-    unregisterReceiver(mBatInfoReceiver);
     if (camera != null) {
       camera.release();
       camera = null;
@@ -209,8 +220,10 @@ public class MainActivity extends Activity {
     else {
       mode = Camera.Parameters.FLASH_MODE_OFF;
       isLedOn = false;
-      mTimer.cancel();
-      mTimer = null;
+      if (mTimer != null) {
+        mTimer.cancel();
+        mTimer = null;
+      }
     }
 
     toggleButton(isLedOn);
